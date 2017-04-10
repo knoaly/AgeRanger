@@ -1,0 +1,161 @@
+﻿@model AgeRangerBO.ViewModels.PeopleViewModel
+@{
+    ViewBag.Title = "People";
+}
+
+<h2>World Leading AgeRanger</h2>
+
+@using (Html.BeginForm())
+{
+    <!-- BEGIN HIDDEN FIELDS AREA -->
+    @Html.HiddenFor(m => m.EventCommand)
+    @Html.HiddenFor(m => m.EventArgument)
+    <!-- END HIDDEN FIELDS AREA -->
+
+    <!-- BEGIN SEARCH AREA -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h1 class="panel-title">Search For People</h1>
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                @Html.LabelFor(m => m.EntitySearch.FirstName, "Name")
+                @Html.TextBoxFor(m => m.EntitySearch.FirstName, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="panel-footer">
+            <button id="btnSearch" class="btn btn-sm btn-primary" data-action="search">
+                <span class="glyphicon glyphicon-search"></span>&nbsp;Search
+            </button>
+            <button id="btnReset" class="btn btn-sm btn-primary" data-action="resetsearch">
+                <span class="glyphicon glyphicon-share-alt"></span>&nbsp;Reset
+            </button>
+            <a class="btn btn-sm btn-primary" title="Add" data-modal=""
+               href="@Url.Action("Details", "Home", new { id = -1 })">
+                <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Add
+            </a>
+        </div>
+    </div>
+    <!-- END SEARCH AREA -->
+
+    <!-- BEGIN LIST AREA -->
+    <div class="table-responsive">
+        <table class="table table-condensed table-bordered table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Age</th>
+                    <th>Age Group</th>
+                    <th class="body-content-column"><span class='glyphicon glyphicon-pencil'></span></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.EntityList != null)
+            {
+                if (Model.EntityList.Count() > 0)
+                {
+                    foreach (var item in Model.EntityList)
+                    {
+                    <tr>
+                        <td>@item.FirstName</td>
+                        <td>@item.LastName</td>
+                        <td>@item.Age</td>
+                        <td>@(item.Agegroup == null ? "" : item.Agegroup.Description)</td>
+                        <td class="body-content-column">
+                            <a class="btn btn-sm btn-primary" title="Edit" data-modal=""
+                               href="@Url.Action("Details", "Home", new { id = item.Id })">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </a>
+                            <a href="#" class="btn btn-danger btn-sm" data-action="delete" data-id="@item.Id">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5">No record found.</td></tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5">No record found. Possibly error in retrieval.</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <p id="problemPara" hidden>There is an error in the page, please check back later or contact the administrator.</p>
+    <!-- END LIST AREA -->
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+
+            $('#myModal').on('hidden.bs.modal', function () {
+                $(this).find('form').trigger('reset');
+            })
+
+            var $btnAction = $("[data-action]");
+            $btnAction.on("click", function () {
+                var toSubmit = true;
+                var $actionData = $(this).data("action");
+                $("#EventCommand").val($actionData);
+                var $idData = $(this).data("id");
+                $("#EventArgument").val($idData);
+                if (($actionData) == "delete") {
+                    if (!confirm('Are you sure you want to delete this item? There is no undo!')) {
+                        toSubmit = false;
+                    }
+                }
+                if (toSubmit) {
+                    $("form").submit();
+                }
+            });
+
+        });
+        
+    
+        $(function () {
+            $.ajaxSetup({ cache: false });
+            
+            $("a[data-modal]").on("click", function (e) {
+                // hide dropdown if any (this is used wehen invoking modal from link in bootstrap dropdown )
+                //$(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+
+                $('#myModalContent').load(this.href, function () {
+                    $('#myModal').modal({
+                        /*backdrop: 'static',*/
+                        keyboard: true
+                    }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+        });
+
+        function bindForm(dialog) {
+            $('form', dialog).submit(function () {
+                $.ajax({
+                    url: this.action,
+                    type: this.method,
+                    data: $(this).serialize(),
+                    success: function (result) {
+                        if (result.success) {
+                            $('#myModal').modal('hide');
+                            //$('#replacetarget').load(result.url); //  Load data from the server and place the returned HTML into the matched element
+                            location.reload();  //since target is the whole page, just reload rather than replace target
+                        } else {
+                            $('#myModalContent').html(result);
+                            bindForm(dialog);
+                        }
+                    }
+                });
+                return false;
+            });
+        }
+
+    </script>
+}
