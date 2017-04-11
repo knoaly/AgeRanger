@@ -5,5 +5,6 @@ b. AgeRangerWebApi\bin
 2. Test project was setup to use the relative path of the db but the web api somehow needs full path to work, so set that up at the web.config, where the current path should reside at AgeRangerDO's Data folder.
 3. WebApp has custom error, if there's any error and you want a quick view of what it was, you have to go to the web.config to switch it off (line 17)
 4. Finally, if the start up project isn't AgeRangerWebApp, please set that as the start up project.
+5. I've added the support file specified in item 1 above at the root of the solution. Just need to restore all the nuget packages, compile & follow step 1 to get the sqlite3.dll in the specified bin, bin\debug directory.
 thank you.
 
