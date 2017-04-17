@@ -24,7 +24,12 @@ namespace AgeRangerDO.Implementation
             Context = new SQLiteConnection(path);
         }
 
-        public long Insert(TEntity model)
+        public SQLiteRepository(SQLiteConnection context)
+        {
+            _context = context;
+        }
+
+        public virtual long Insert(TEntity model)
         {
             long iRes = Context.Insert(model);
             return iRes;

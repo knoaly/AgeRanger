@@ -7,39 +7,28 @@ using System.Web;
 
 namespace AgeRangerWebApi.Implementation
 {
-    public class PersonService : IPersonService
+    public class PersonService : EntityServiceBase<Person, AgeRangerDO.Model.Person>, IPersonService
     {
         private readonly AgeRangerDO.Interface.IPersonRepository _repoPerson;
         private readonly AgeRangerDO.Interface.IAgeGroupRepository _repoAgeGrp;
 
-        public PersonService()
-        {
-            _repoPerson = new AgeRangerDO.Implementation.PersonRepository();
-            _repoAgeGrp = new AgeRangerDO.Implementation.AgeGroupRepository();
-        }
+        public PersonService() : this (new AgeRangerDO.Implementation.PersonRepository(),
+                                       new AgeRangerDO.Implementation.AgeGroupRepository()) { }
 
-        //ToDo: Unit Testing
         public PersonService(AgeRangerDO.Interface.IPersonRepository repoPerson,
-            AgeRangerDO.Interface.IAgeGroupRepository repoAgeGrp)
+            AgeRangerDO.Interface.IAgeGroupRepository repoAgeGrp) : base(repoPerson)
         {
-            _repoPerson = repoPerson;
+            _repoPerson = (AgeRangerDO.Interface.IPersonRepository)_repo;
             _repoAgeGrp = repoAgeGrp;
         }
-
-        public IEnumerable<Person> GetAll()
-        {
-            var persons = _repoPerson.SelectAll() as IEnumerable<AgeRangerDO.Model.Person>;
-            var retPersons = persons.Select(PersonRepoToBO);
-            return retPersons;
-        }
-
+        
         private AgeGroup AgeGroupOfPerson(long age)
         {
             var ag = new AgeRangerDO.Implementation.RepoExtensions<AgeRangerDO.Model.AgeGroup>(_repoAgeGrp).GetAgeGroupByAge(age);
             return AgeGroupRepoToBO(ag);
         }
 
-        private Person PersonRepoToBO(AgeRangerDO.Model.Person person)
+        protected override Person EntityRepoToBO(AgeRangerDO.Model.Person person)
         {
             Person per = new Person
             {
@@ -52,7 +41,7 @@ namespace AgeRangerWebApi.Implementation
             return per;
         }
 
-        private AgeRangerDO.Model.Person PersonBOToRepo(Person person)
+        protected override AgeRangerDO.Model.Person EntityBOToRepo(Person person)
         {
             AgeRangerDO.Model.Person per = new AgeRangerDO.Model.Person
             {
@@ -76,23 +65,16 @@ namespace AgeRangerWebApi.Implementation
             return agrp;
         }
 
-        public Person GetSingle(long id)
-        {
-            var rPerson = _repoPerson.Select(id);
-            var person = PersonRepoToBO(rPerson);
-            return person;
-        }
-
         public IEnumerable<Person> GetByName(string name)
         {
             var persons = _repoPerson.SelectByName(name) as IEnumerable<AgeRangerDO.Model.Person>;
-            var retPersons = persons.Select(PersonRepoToBO);
+            var retPersons = persons.Select(EntityRepoToBO);
             return retPersons;
         }
 
-        public Person Insert(Person person)
+        public override Person Insert(Person person)
         {
-            long iRes = _repoPerson.Insert(PersonBOToRepo(person));
+            long iRes = _repoPerson.Insert(EntityBOToRepo(person));
             if (iRes == 1)
             {
                 long id = _repoPerson.GetLastInsertId();
@@ -101,14 +83,8 @@ namespace AgeRangerWebApi.Implementation
             }
             return null;
         }
-
-        public long Update(Person person)
-        {
-            long iRes = _repoPerson.Update(PersonBOToRepo(person));
-            return iRes;
-        }
-
-        public long Delete(long id)
+        
+        public override long Delete(long id)
         {
             var person = new AgeRangerDO.Model.Person { Id = id };
             long iRes = _repoPerson.Delete(person);

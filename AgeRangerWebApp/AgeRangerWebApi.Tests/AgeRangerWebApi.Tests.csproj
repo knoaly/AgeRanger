@@ -99,6 +99,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controllers\HomeControllerTest.cs" />
     <Compile Include="Controllers\PersonControllerTest.cs" />
+    <Compile Include="PersonServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
@@ -110,6 +111,10 @@
     <ProjectReference Include="..\AgeRangerBO\AgeRangerBO.csproj">
       <Project>{77899bb5-e4a6-41d8-8f53-e173febde09a}</Project>
       <Name>AgeRangerBO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AgeRangerDO\AgeRangerDO.csproj">
+      <Project>{4D978A96-4324-4113-B375-53540D33D262}</Project>
+      <Name>AgeRangerDO</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgeRangerWebApi\AgeRangerWebApi.csproj">
       <Project>{43B7BAFE-708B-43BF-9943-CBF360E1FBCD}</Project>

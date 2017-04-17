@@ -7,13 +7,8 @@ using System.Threading.Tasks;
 
 namespace AgeRangerWebApi.Interface
 {
-    public interface IPersonService
+    public interface IPersonService : IEntityService<Person>
     {
-        IEnumerable<Person> GetAll();
-        Person GetSingle(long id);
         IEnumerable<Person> GetByName(string name);
-        Person Insert(Person person);
-        long Update(Person person);
-        long Delete(long person);
     }
 }
